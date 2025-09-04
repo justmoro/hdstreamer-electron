@@ -1,1 +1,40 @@
+name: Build Windows Installer (HDStreamer)
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install electron-builder
+      run: npm install -g electron-builder
+
+    - name: Download FFmpeg
+      run: |
+        mkdir ffmpeg
+        curl -L https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -o ffmpeg.zip
+        tar -xf ffmpeg.zip -C ffmpeg --strip-components=1
+        echo "${{ github.workspace }}\ffmpeg\bin" >> $env:GITHUB_PATH
+
+    - name: Build installer
+      run: npm run dist
+
+    - name: Upload Installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: HDStreamer-Installer
+        path: dist/*
 
