@@ -10,12 +10,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+
+      - name: Install electron-builder
+        run: npm install -g electron-builder
+
       - name: Download FFmpeg (essentials)
         shell: pwsh
         run: |
@@ -24,10 +30,13 @@ jobs:
           $exe = Get-ChildItem ff_tmp -Recurse -Filter ffmpeg.exe | Select-Object -First 1
           New-Item -ItemType Directory -Force -Path ffmpeg\bin | Out-Null
           Copy-Item $exe.FullName -Destination "ffmpeg\bin\ffmpeg.exe" -Force
+          echo "${{ github.workspace }}\ffmpeg\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Build Installer (electron-builder)
         run: npm run dist
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: hdstreamer-windows
-          path: dist
+          path: dist/*
