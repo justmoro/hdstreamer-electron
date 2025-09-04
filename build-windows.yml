@@ -1,0 +1,33 @@
+name: Build Windows Installer (HDStreamer)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: Download FFmpeg (essentials)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile ff.zip
+          Expand-Archive ff.zip -DestinationPath ff_tmp
+          $exe = Get-ChildItem ff_tmp -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          New-Item -ItemType Directory -Force -Path ffmpeg\bin | Out-Null
+          Copy-Item $exe.FullName -Destination "ffmpeg\bin\ffmpeg.exe" -Force
+      - name: Build Installer (electron-builder)
+        run: npm run dist
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hdstreamer-windows
+          path: dist
