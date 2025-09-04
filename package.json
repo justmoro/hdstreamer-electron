@@ -1,0 +1,48 @@
+{
+  "name": "hdstreamer-electron",
+  "version": "1.0.0",
+  "description": "HDStreamer - بث فيديو وصوت من كارت الكابتشر إلى RTMP/HLS مع واجهة عربية",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis -c.extraResources=server/** -c.extraResources=ffmpeg/**"
+  },
+  "build": {
+    "appId": "com.hdstreamer.app",
+    "productName": "HDStreamer",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "server/**",
+      "package.json",
+      "tools/**",
+      "ffmpeg/**"
+    ],
+    "extraResources": [
+      "server/**",
+      "ffmpeg/**",
+      "tools/**"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "node-media-server": "^2.1.0"
+  },
+  "devDependencies": {
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.0"
+  }
+}
